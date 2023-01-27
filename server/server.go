@@ -1,28 +1,27 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	po "pokedex"
 	pos "pokedex/struct"
+	"text/template"
 )
 
-var Pokes pos.Infos
+var Pokemons []pos.Pokemon
 
 func main() {
+	fmt.Println("Starting server on port 8080")
+	http.HandleFunc("/", HandleIndex)
+	fs := http.FileServer(http.Dir("./static"))
+	Pokemons = po.GetDatas()
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.ListenAndServe(":8080", nil)
+}
 
-	url := "https://pokeapi.co/api/v2/pokemon?limit=300"
-
-	data, _ := http.Get(url)
-	responseData, _ := ioutil.ReadAll(data.Body)
-
-	json.Unmarshal(responseData, &Pokes)
-
-	fmt.Println(Pokes.Results)
-
-	// for name, url := range Pokes.Results {
-	// 	fmt.Println(name)
-	// 	fmt.Println(url)
-	// }
+func HandleIndex(w http.ResponseWriter, r *http.Request) {
+	var tmpl *template.Template
+	tmpl = template.Must(template.ParseFiles("./static/index.html"))
+	tmpl.Execute(w, Pokemons)
+	return
 }
