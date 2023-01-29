@@ -11,3 +11,7 @@ type Poke struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
 }
+
+type Pokedex struct {
+	PokeTab []Pokemon
+}
